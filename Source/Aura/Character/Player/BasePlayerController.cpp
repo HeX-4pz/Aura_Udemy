@@ -4,6 +4,7 @@
 #include "BasePlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Aura/Interactable.h"
 
 ABasePlayerController::ABasePlayerController()
 {
@@ -39,6 +40,32 @@ void ABasePlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Move);
 }
 
+void ABasePlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	const auto Actor = CursorTrace();
+
+	if (Actor)
+	{
+		if (!PrevInteractableActor)
+		{
+			Actor->Highlight();
+		}
+		else if (Actor != PrevInteractableActor)
+		{
+				Actor->Highlight();
+				PrevInteractableActor->Unhighlight();
+		}
+	}
+	else if (PrevInteractableActor)
+	{
+		PrevInteractableActor->Unhighlight();
+	}
+
+	PrevInteractableActor = Actor;
+}
+
 void ABasePlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D InputVector = InputActionValue.Get<FVector2D>();
@@ -50,4 +77,18 @@ void ABasePlayerController::Move(const FInputActionValue& InputActionValue)
 		CurrentPawn->AddMovementInput(FVector::UnitY(), InputVector.X);
 		CurrentPawn->AddMovementInput(FVector::UnitX(), InputVector.Y);
 	}
+}
+
+IInteractable* ABasePlayerController::CursorTrace()
+{
+
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+
+	if (HitResult.bBlockingHit)
+	{
+		IInteractable* HitActor = Cast<IInteractable>(HitResult.GetActor());
+		return HitActor;
+	}
+	return nullptr;
 }

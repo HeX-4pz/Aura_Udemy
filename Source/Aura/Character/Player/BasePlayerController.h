@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class IInteractable;
 /**
  * 
  */
@@ -20,6 +21,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -29,4 +31,8 @@ private:
 	TObjectPtr<class UInputAction> MoveAction;
 
 	void Move(const struct FInputActionValue& InputActionValue);
+
+	IInteractable* CursorTrace();
+	IInteractable* PrevInteractableActor;
+	
 };

@@ -3,3 +3,13 @@
 
 #include "EnemyCharacter.h"
 
+void AEnemyCharacter::Highlight()
+{
+	bShouldHighlight = true;
+}
+
+void AEnemyCharacter::Unhighlight()
+{
+	bShouldHighlight = false;
+}
+
